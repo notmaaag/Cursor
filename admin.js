@@ -273,6 +273,12 @@
       : $(`.nav-item[data-tab="${tab}"]`);
     if (navBtn) navBtn.classList.add('nav-item--active');
 
+    // Initialize and refresh map when switching to map tab
+    if (tab === 'map') {
+      initMap();
+      setTimeout(() => refreshMap(), 150);
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -555,6 +561,9 @@
       }
     });
 
+    // Map
+    $('#btnQuickMap').addEventListener('click', () => switchTab('map'));
+
     // Manage slots
     $('#btnQuickSlots').addEventListener('click', openSlotsModal);
 
@@ -776,11 +785,224 @@
   }
 
   // ==========================================
+  // MAP
+  // ==========================================
+  let map = null;
+  let mapMarkers = [];
+  let mapInitialized = false;
+
+  const STATUS_COLORS = {
+    pending:    '#ff9500',
+    confirmed:  '#007aff',
+    paid:       '#5856d6',
+    preparing:  '#ff6b35',
+    ready:      '#34c759',
+    delivered:  '#30d158',
+    cancelled:  '#ff3b30',
+  };
+
+  function initMap() {
+    if (mapInitialized) return;
+    mapInitialized = true;
+
+    // Default center: São Paulo
+    map = L.map('mapContainer', {
+      zoomControl: true,
+      attributionControl: false,
+    }).setView([-23.55, -46.63], 12);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+    }).addTo(map);
+
+    // Fix tile rendering after tab switch
+    setTimeout(() => map.invalidateSize(), 200);
+  }
+
+  function createMarkerIcon(color, label) {
+    return L.divIcon({
+      className: '',
+      html: `<div style="
+        width:30px;height:30px;border-radius:50%;
+        background:${color};color:#fff;
+        display:flex;align-items:center;justify-content:center;
+        font-size:12px;font-weight:700;font-family:Inter,sans-serif;
+        box-shadow:0 2px 8px rgba(0,0,0,0.3);
+        border:2px solid #fff;
+      ">${label}</div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+      popupAnchor: [0, -18],
+    });
+  }
+
+  async function geocodeOrder(order) {
+    // Build query from address parts
+    const query = [order.fullAddress || order.address, 'Brasil']
+      .filter(Boolean).join(', ');
+    if (!query || query === 'Brasil') return null;
+
+    try {
+      const resp = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
+        { headers: { 'Accept-Language': 'pt-BR' } }
+      );
+      const results = await resp.json();
+      if (results.length > 0) {
+        return { lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) };
+      }
+    } catch (e) {
+      console.warn('Geocode failed for order', order.id, e);
+    }
+    return null;
+  }
+
+  async function refreshMap() {
+    if (!map) initMap();
+    setTimeout(() => map.invalidateSize(), 100);
+
+    // Get delivery orders for this week (not cancelled, not delivered)
+    const weekOrders = getWeekOrders();
+    const deliveryOrders = weekOrders.filter(
+      (o) => o.deliveryMethod === 'delivery' && o.status !== 'cancelled'
+    );
+
+    $('#mapSubtitle').textContent = `${deliveryOrders.length} entrega${deliveryOrders.length !== 1 ? 's' : ''} neste sábado`;
+
+    // Clear existing markers
+    mapMarkers.forEach((m) => map.removeLayer(m));
+    mapMarkers = [];
+
+    if (deliveryOrders.length === 0) {
+      $('#mapOrdersList').innerHTML = `
+        <div class="map-empty">
+          <div class="map-empty__icon">📍</div>
+          <p class="map-empty__text">Nenhuma entrega agendada.<br>Os pedidos com entrega aparecerão aqui no mapa.</p>
+        </div>
+      `;
+      return;
+    }
+
+    const bounds = [];
+    let cardHtml = '';
+    let idx = 0;
+
+    for (const order of deliveryOrders) {
+      idx++;
+      let lat = order.lat;
+      let lng = order.lng;
+
+      // If no coords, try to geocode (and save back)
+      if (!lat || !lng) {
+        const coords = await geocodeOrder(order);
+        if (coords) {
+          lat = coords.lat;
+          lng = coords.lng;
+          // Persist coords back to the order
+          updateOrder(order.id, { lat, lng });
+        }
+      }
+
+      const color = STATUS_COLORS[order.status] || STATUS_COLORS.pending;
+      const statusLabel = STATUS_LABELS[order.status] || order.status;
+      const statusClass = `order-card__status--${order.status}`;
+
+      if (lat && lng) {
+        const marker = L.marker([lat, lng], {
+          icon: createMarkerIcon(color, idx),
+        }).addTo(map);
+
+        const popupHtml = `
+          <div class="map-popup">
+            <div class="map-popup__name">${idx}. ${escapeHtml(order.customerName)}</div>
+            <div class="map-popup__flavor">${FLAVOR_ICONS[order.flavor] || '🥧'} Torta de ${FLAVOR_NAMES[order.flavor] || order.flavor}</div>
+            <div class="map-popup__address">${escapeHtml(order.fullAddress || order.address)}</div>
+            <span class="map-popup__status ${statusClass}">${statusLabel}</span>
+            <div class="map-popup__actions">
+              <button class="map-popup__btn map-popup__btn--nav" onclick="window._openNavigation(${lat},${lng})">🧭 Navegar</button>
+              <button class="map-popup__btn map-popup__btn--detail" onclick="window._openOrderFromMap('${order.id}')">Ver pedido</button>
+            </div>
+          </div>
+        `;
+        marker.bindPopup(popupHtml);
+        mapMarkers.push(marker);
+        bounds.push([lat, lng]);
+      }
+
+      // Order card below map
+      const hasCoords = lat && lng;
+      cardHtml += `
+        <div class="map-order-card" data-order-id="${order.id}" ${hasCoords ? `data-lat="${lat}" data-lng="${lng}"` : ''}>
+          <div class="map-order-card__marker map-order-card__marker--${order.status}">${idx}</div>
+          <div class="map-order-card__info">
+            <div class="map-order-card__name">${escapeHtml(order.customerName)}</div>
+            <div class="map-order-card__address">${escapeHtml(order.fullAddress || order.address || 'Endereço não informado')}</div>
+          </div>
+          <div class="map-order-card__action">
+            ${hasCoords ? `<button class="map-order-card__nav-btn" title="Navegar" data-lat="${lat}" data-lng="${lng}">🧭</button>` : '<span style="font-size:0.7rem;color:var(--text-muted);">Sem mapa</span>'}
+          </div>
+        </div>
+      `;
+    }
+
+    $('#mapOrdersList').innerHTML = cardHtml;
+
+    // Fit map to markers
+    if (bounds.length > 0) {
+      if (bounds.length === 1) {
+        map.setView(bounds[0], 15);
+      } else {
+        map.fitBounds(bounds, { padding: [40, 40] });
+      }
+    }
+
+    // Click handlers for order cards
+    $$('.map-order-card').forEach((card) => {
+      card.addEventListener('click', (e) => {
+        // Don't trigger if clicking nav button
+        if (e.target.closest('.map-order-card__nav-btn')) return;
+        const lat = card.dataset.lat;
+        const lng = card.dataset.lng;
+        if (lat && lng) {
+          map.setView([parseFloat(lat), parseFloat(lng)], 16);
+          // Open the corresponding marker popup
+          const idx = Array.from($$('.map-order-card')).indexOf(card);
+          if (mapMarkers[idx]) mapMarkers[idx].openPopup();
+        }
+      });
+    });
+
+    // Navigation buttons in card list
+    $$('.map-order-card__nav-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const lat = btn.dataset.lat;
+        const lng = btn.dataset.lng;
+        openNavigation(parseFloat(lat), parseFloat(lng));
+      });
+    });
+  }
+
+  // Open external navigation (Google Maps / Waze)
+  function openNavigation(lat, lng) {
+    // Try Google Maps first (works on both iOS and Android)
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
+    window.open(url, '_blank');
+  }
+
+  // Expose functions for popup onclick (Leaflet popups use innerHTML)
+  window._openNavigation = openNavigation;
+  window._openOrderFromMap = function (id) {
+    openOrderDetail(id);
+  };
+
+  // ==========================================
   // REFRESH ALL
   // ==========================================
   function refreshAll() {
     refreshDashboard();
     refreshOrders();
+    if (mapInitialized) refreshMap();
 
     const weekOrders = getWeekOrders().filter((o) => o.status !== 'cancelled');
     $('#settUsedSlots').textContent = weekOrders.length;

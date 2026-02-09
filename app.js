@@ -208,6 +208,31 @@
     return { status: 'closed', day, isThursday: false };
   }
 
+  // Geocode address using Nominatim (OpenStreetMap) - free, no API key
+  async function geocodeAddress(cepData) {
+    try {
+      const query = [
+        cepData.logradouro,
+        cepData.bairro,
+        cepData.localidade,
+        cepData.uf,
+        'Brasil',
+      ].filter(Boolean).join(', ');
+
+      const resp = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
+        { headers: { 'Accept-Language': 'pt-BR' } }
+      );
+      const results = await resp.json();
+      if (results.length > 0) {
+        return { lat: parseFloat(results[0].lat), lng: parseFloat(results[0].lon) };
+      }
+    } catch (e) {
+      console.warn('Geocoding failed:', e);
+    }
+    return null;
+  }
+
   function isDeliverableCep(cep) {
     const digits = cep.replace(/\D/g, '');
     if (digits.length !== 8) return false;
@@ -517,6 +542,14 @@
         }
 
         state.cepData = data;
+
+        // Geocode address in background for map (non-blocking)
+        geocodeAddress(data).then((coords) => {
+          if (coords) {
+            state.cepData.lat = coords.lat;
+            state.cepData.lng = coords.lng;
+          }
+        }).catch(() => {});
 
         // Show address
         const addressText = `${data.logradouro ? data.logradouro + ', ' : ''}${data.bairro ? data.bairro + ' - ' : ''}${data.localidade}/${data.uf}`;
@@ -909,6 +942,8 @@
         isThursdayOrder: state.isThursday,
         referredBy: state.referralCode || null,
         referralCode: state.myReferralCode,
+        lat: state.cepData ? state.cepData.lat || null : null,
+        lng: state.cepData ? state.cepData.lng || null : null,
         status: 'pending',
         createdAt: new Date().toISOString(),
         deliveryDate: nextSat.toISOString().split('T')[0],
