@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#8B4513">
+  <meta name="description" content="Tortas artesanais feitas com amor. Encomende agora para entrega no sábado!">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Tortas da Vó · Artesanais com Amor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- ========== PROGRESS BAR ========== -->
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <!-- ========== STEP 0: LANDING ========== -->
+    <section class="step step--active" id="step-landing">
+      <div class="landing">
+        <div class="landing__hero">
+          <div class="landing__badge">
+            <span class="landing__badge-icon">🥧</span>
+          </div>
+          <h1 class="landing__title">Tortas da Vó</h1>
+          <p class="landing__subtitle">Artesanais, feitas com amor</p>
+        </div>
+
+        <div class="landing__info">
+          <p class="landing__desc">
+            Tortas caseiras preparadas com ingredientes frescos e muito carinho.
+            Encomende até <strong>quarta-feira</strong> para receber no <strong>sábado</strong>.
+          </p>
+        </div>
+
+        <!-- Slots Counter -->
+        <div class="slots" id="slotsContainer">
+          <p class="slots__label">Vagas para este sábado</p>
+          <div class="slots__dots" id="slotsDots"></div>
+          <p class="slots__count">
+            <span id="slotsAvailable">10</span> de 10 disponíveis
+          </p>
+        </div>
+
+        <!-- Day Status -->
+        <div class="day-status" id="dayStatus"></div>
+
+        <!-- Flavors Preview -->
+        <div class="flavors-preview">
+          <div class="flavor-mini">
+            <span class="flavor-mini__icon">🍗</span>
+            <span class="flavor-mini__name">Frango</span>
+            <span class="flavor-mini__price" id="priceFraggo">R$ 45</span>
+          </div>
+          <div class="flavor-mini__divider"></div>
+          <div class="flavor-mini">
+            <span class="flavor-mini__icon">🧅</span>
+            <span class="flavor-mini__name">Alho Poró</span>
+            <span class="flavor-mini__price" id="pricePoro">R$ 50</span>
+          </div>
+        </div>
+
+        <button class="btn btn--primary btn--large" id="btnStart">
+          Fazer Encomenda
+          <svg class="btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+
+        <p class="landing__footer">
+          Entrega aos sábados · Pedidos limitados
+        </p>
+      </div>
+    </section>
+
+    <!-- ========== STEP 1: CHOOSE FLAVOR ========== -->
+    <section class="step" id="step-flavor">
+      <div class="step__header">
+        <button class="btn-back" id="btnBackFlavor" aria-label="Voltar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div class="step__header-text">
+          <span class="step__number">Passo 1 de 4</span>
+          <h2 class="step__title">Escolha o sabor</h2>
+        </div>
+      </div>
+
+      <div class="step__content">
+        <p class="step__desc">Qual torta vai querer essa semana?</p>
+
+        <div class="flavor-cards">
+          <button class="flavor-card" data-flavor="frango" id="cardFrango">
+            <div class="flavor-card__icon">🍗</div>
+            <h3 class="flavor-card__name">Frango</h3>
+            <p class="flavor-card__desc">Frango desfiado temperado, requeijão cremoso, milho e azeitonas</p>
+            <div class="flavor-card__price">
+              <span class="flavor-card__price-value" id="cardPriceFraggo">R$ 45</span>
+              <span class="flavor-card__price-label">a torta inteira</span>
+            </div>
+            <div class="flavor-card__check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+            </div>
+          </button>
+
+          <button class="flavor-card" data-flavor="alho-poro" id="cardPoro">
+            <div class="flavor-card__icon">🧅</div>
+            <h3 class="flavor-card__name">Alho Poró</h3>
+            <p class="flavor-card__desc">Alho poró refogado na manteiga, creme de leite fresco e queijo gruyère</p>
+            <div class="flavor-card__price">
+              <span class="flavor-card__price-value" id="cardPricePoro">R$ 50</span>
+              <span class="flavor-card__price-label">a torta inteira</span>
+            </div>
+            <div class="flavor-card__check">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+            </div>
+          </button>
+        </div>
+
+        <!-- Thursday surcharge notice -->
+        <div class="notice notice--warning" id="thursdayNotice" style="display:none;">
+          <span class="notice__icon">⚠️</span>
+          <p>Pedidos na quinta-feira têm uma <strong>taxa de urgência de R$ 10</strong> adicional.</p>
+        </div>
+
+        <button class="btn btn--primary" id="btnFlavorNext" disabled>
+          Continuar
+        </button>
+      </div>
+    </section>
+
+    <!-- ========== STEP 2: CEP / DELIVERY ========== -->
+    <section class="step" id="step-delivery">
+      <div class="step__header">
+        <button class="btn-back" id="btnBackDelivery" aria-label="Voltar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div class="step__header-text">
+          <span class="step__number">Passo 2 de 4</span>
+          <h2 class="step__title">Entrega ou retirada?</h2>
+        </div>
+      </div>
+
+      <div class="step__content">
+        <p class="step__desc">Informe seu CEP para verificar se entregamos na sua região.</p>
+
+        <div class="input-group">
+          <label class="input-group__label" for="inputCep">CEP</label>
+          <div class="input-group__wrapper">
+            <input
+              type="tel"
+              id="inputCep"
+              class="input-group__input"
+              placeholder="00000-000"
+              maxlength="9"
+              inputmode="numeric"
+              autocomplete="postal-code"
+            >
+            <button class="input-group__action" id="btnCheckCep">
+              Verificar
+            </button>
+          </div>
+          <span class="input-group__hint" id="cepHint"></span>
+        </div>
+
+        <!-- CEP Result -->
+        <div id="cepResult" style="display:none;">
+          <div class="address-card" id="addressCard">
+            <p class="address-card__text" id="addressText"></p>
+          </div>
+
+          <div class="delivery-options" id="deliveryOptions">
+            <button class="delivery-option" data-method="delivery" id="optDelivery">
+              <div class="delivery-option__icon">🚗</div>
+              <div class="delivery-option__info">
+                <h4>Entrega</h4>
+                <p>Receba no conforto da sua casa</p>
+                <span class="delivery-option__price" id="deliveryPrice">+ R$ 10</span>
+              </div>
+              <div class="delivery-option__check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+              </div>
+            </button>
+
+            <button class="delivery-option" data-method="pickup" id="optPickup">
+              <div class="delivery-option__icon">📍</div>
+              <div class="delivery-option__info">
+                <h4>Retirada</h4>
+                <p>Retire no nosso endereço</p>
+                <span class="delivery-option__price">Grátis</span>
+              </div>
+              <div class="delivery-option__check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pickup only notice -->
+        <div class="notice notice--info" id="pickupOnlyNotice" style="display:none;">
+          <span class="notice__icon">📍</span>
+          <p>Infelizmente não entregamos nessa região, mas você pode <strong>retirar no nosso endereço</strong>!</p>
+        </div>
+
+        <button class="btn btn--primary" id="btnDeliveryNext" disabled>
+          Continuar
+        </button>
+      </div>
+    </section>
+
+    <!-- ========== STEP 3: CONTACT / VERIFICATION ========== -->
+    <section class="step" id="step-contact">
+      <div class="step__header">
+        <button class="btn-back" id="btnBackContact" aria-label="Voltar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div class="step__header-text">
+          <span class="step__number">Passo 3 de 4</span>
+          <h2 class="step__title">Seus dados</h2>
+        </div>
+      </div>
+
+      <div class="step__content">
+        <p class="step__desc">Precisamos do seu celular para confirmar o pedido.</p>
+
+        <!-- Phone Input -->
+        <div id="phoneSection">
+          <div class="input-group">
+            <label class="input-group__label" for="inputPhone">Celular (WhatsApp)</label>
+            <div class="input-group__wrapper">
+              <input
+                type="tel"
+                id="inputPhone"
+                class="input-group__input"
+                placeholder="(11) 99999-9999"
+                maxlength="15"
+                inputmode="tel"
+                autocomplete="tel"
+              >
+              <button class="input-group__action" id="btnSendCode">
+                Enviar código
+              </button>
+            </div>
+            <span class="input-group__hint" id="phoneHint"></span>
+          </div>
+        </div>
+
+        <!-- Verification Code -->
+        <div id="codeSection" style="display:none;">
+          <div class="verification-sent">
+            <span class="verification-sent__icon">💬</span>
+            <p>Código enviado para <strong id="phoneSentTo"></strong></p>
+          </div>
+
+          <div class="code-inputs" id="codeInputs">
+            <input type="tel" maxlength="1" inputmode="numeric" class="code-input" data-idx="0" autocomplete="one-time-code">
+            <input type="tel" maxlength="1" inputmode="numeric" class="code-input" data-idx="1">
+            <input type="tel" maxlength="1" inputmode="numeric" class="code-input" data-idx="2">
+            <input type="tel" maxlength="1" inputmode="numeric" class="code-input" data-idx="3">
+          </div>
+          <span class="input-group__hint" id="codeHint"></span>
+
+          <button class="btn-link" id="btnResendCode">Reenviar código</button>
+        </div>
+
+        <!-- Name Input -->
+        <div id="nameSection" style="display:none;">
+          <div class="verified-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <path d="M22 4L12 14.01l-3-3"/>
+            </svg>
+            <span>Celular verificado!</span>
+          </div>
+
+          <div class="input-group">
+            <label class="input-group__label" for="inputName">Seu nome</label>
+            <input
+              type="text"
+              id="inputName"
+              class="input-group__input"
+              placeholder="Como podemos te chamar?"
+              autocomplete="given-name"
+            >
+          </div>
+
+          <!-- Delivery address complement (if delivery) -->
+          <div id="addressComplement" style="display:none;">
+            <div class="input-group">
+              <label class="input-group__label" for="inputNumber">Número</label>
+              <input
+                type="text"
+                id="inputNumber"
+                class="input-group__input"
+                placeholder="Nº do endereço"
+                inputmode="numeric"
+              >
+            </div>
+            <div class="input-group">
+              <label class="input-group__label" for="inputComp">Complemento (opcional)</label>
+              <input
+                type="text"
+                id="inputComp"
+                class="input-group__input"
+                placeholder="Apto, bloco, referência..."
+              >
+            </div>
+          </div>
+
+          <button class="btn btn--primary" id="btnContactNext" disabled>
+            Revisar pedido
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== STEP 4: CONFIRMATION ========== -->
+    <section class="step" id="step-confirm">
+      <div class="step__header">
+        <button class="btn-back" id="btnBackConfirm" aria-label="Voltar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7"/>
+          </svg>
+        </button>
+        <div class="step__header-text">
+          <span class="step__number">Passo 4 de 4</span>
+          <h2 class="step__title">Confirme seu pedido</h2>
+        </div>
+      </div>
+
+      <div class="step__content">
+        <div class="order-summary">
+          <div class="order-summary__item">
+            <span class="order-summary__label">Torta</span>
+            <span class="order-summary__value" id="summaryFlavor"></span>
+          </div>
+          <div class="order-summary__item">
+            <span class="order-summary__label">Entrega</span>
+            <span class="order-summary__value" id="summaryDelivery"></span>
+          </div>
+          <div class="order-summary__item">
+            <span class="order-summary__label">Data</span>
+            <span class="order-summary__value" id="summaryDate"></span>
+          </div>
+          <div class="order-summary__item">
+            <span class="order-summary__label">Nome</span>
+            <span class="order-summary__value" id="summaryName"></span>
+          </div>
+          <div class="order-summary__item">
+            <span class="order-summary__label">Celular</span>
+            <span class="order-summary__value" id="summaryPhone"></span>
+          </div>
+          <div class="order-summary__item" id="summaryAddressRow" style="display:none;">
+            <span class="order-summary__label">Endereço</span>
+            <span class="order-summary__value" id="summaryAddress"></span>
+          </div>
+
+          <div class="order-summary__divider"></div>
+
+          <div class="order-summary__item" id="summaryPieRow">
+            <span class="order-summary__label">Torta</span>
+            <span class="order-summary__value" id="summaryPiePrice"></span>
+          </div>
+          <div class="order-summary__item" id="summaryDeliveryFeeRow" style="display:none;">
+            <span class="order-summary__label">Taxa de entrega</span>
+            <span class="order-summary__value" id="summaryDeliveryFee"></span>
+          </div>
+          <div class="order-summary__item" id="summarySurchargeRow" style="display:none;">
+            <span class="order-summary__label">Taxa de urgência (quinta)</span>
+            <span class="order-summary__value" id="summarySurcharge"></span>
+          </div>
+          <div class="order-summary__item" id="summaryDiscountRow" style="display:none;">
+            <span class="order-summary__label">Desconto indicação 🎉</span>
+            <span class="order-summary__value order-summary__value--discount" id="summaryDiscount"></span>
+          </div>
+
+          <div class="order-summary__divider"></div>
+
+          <div class="order-summary__item order-summary__total">
+            <span class="order-summary__label">Total</span>
+            <span class="order-summary__value" id="summaryTotal"></span>
+          </div>
+        </div>
+
+        <!-- PIX Payment -->
+        <div class="pix-section">
+          <h3 class="pix-section__title">Pagamento via PIX</h3>
+          <p class="pix-section__desc">Após confirmar, enviaremos a chave PIX por WhatsApp para pagamento.</p>
+          <div class="pix-section__info">
+            <span class="pix-section__icon">
+              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </span>
+            <span>Pagamento seguro · PIX instantâneo</span>
+          </div>
+        </div>
+
+        <div class="confirm-actions">
+          <button class="btn btn--primary btn--large" id="btnConfirmOrder">
+            Confirmar Encomenda
+          </button>
+          <p class="confirm-actions__note">
+            Ao confirmar, você reserva sua vaga e receberá os detalhes de pagamento por WhatsApp.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== STEP 5: SUCCESS ========== -->
+    <section class="step" id="step-success">
+      <div class="success">
+        <div class="success__animation" id="successAnimation">
+          <div class="success__circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M20 6L9 17l-5-5" class="success__check-path"/>
+            </svg>
+          </div>
+        </div>
+
+        <h2 class="success__title">Encomenda confirmada! 🎉</h2>
+        <p class="success__subtitle">Sua torta está garantida para este sábado.</p>
+
+        <div class="success__details">
+          <div class="success__detail">
+            <span class="success__detail-label">Pedido</span>
+            <span class="success__detail-value" id="successOrderId"></span>
+          </div>
+          <div class="success__detail">
+            <span class="success__detail-label">Torta</span>
+            <span class="success__detail-value" id="successFlavor"></span>
+          </div>
+          <div class="success__detail">
+            <span class="success__detail-label">Entrega</span>
+            <span class="success__detail-value" id="successDeliveryDate"></span>
+          </div>
+        </div>
+
+        <div class="success__next-steps">
+          <h3>Próximos passos</h3>
+          <ol>
+            <li>Você receberá a chave PIX no WhatsApp</li>
+            <li>Faça o pagamento em até 2 horas</li>
+            <li>Confirmação automática após pagamento</li>
+            <li>Receba sua torta no sábado! 🥧</li>
+          </ol>
+        </div>
+
+        <!-- Referral Section -->
+        <div class="referral">
+          <div class="referral__header">
+            <span class="referral__icon">🎁</span>
+            <h3>Indique e ganhe!</h3>
+          </div>
+          <p class="referral__desc">
+            Compartilhe com amigos! A cada <strong>10 indicações que fizerem pedido</strong>, você ganha <strong>1 torta grátis</strong>!
+          </p>
+          <div class="referral__code">
+            <span class="referral__code-label">Seu código</span>
+            <span class="referral__code-value" id="referralCode"></span>
+          </div>
+          <div class="referral__progress" id="referralProgress">
+            <div class="referral__progress-bar">
+              <div class="referral__progress-fill" id="referralFill"></div>
+            </div>
+            <span class="referral__progress-text" id="referralText">0 de 10 indicações</span>
+          </div>
+          <button class="btn btn--whatsapp" id="btnShareWhatsapp">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            Compartilhar no WhatsApp
+          </button>
+        </div>
+
+        <button class="btn btn--outline" id="btnNewOrder">
+          Fazer novo pedido
+        </button>
+      </div>
+    </section>
+
+    <!-- ========== CLOSED SCREEN ========== -->
+    <section class="step" id="step-closed" style="display:none;">
+      <div class="closed">
+        <div class="closed__icon">🕐</div>
+        <h2 class="closed__title">Encomendas encerradas</h2>
+        <p class="closed__desc" id="closedMessage">
+          As encomendas para este sábado já foram encerradas. Volte no domingo para garantir sua torta da próxima semana!
+        </p>
+        <div class="closed__countdown" id="closedCountdown"></div>
+        <button class="btn btn--outline" id="btnNotifyMe">
+          Me avise quando abrir
+        </button>
+      </div>
+    </section>
+
+    <!-- ========== SOLD OUT SCREEN ========== -->
+    <section class="step" id="step-soldout" style="display:none;">
+      <div class="closed">
+        <div class="closed__icon">😍</div>
+        <h2 class="closed__title">Esgotado!</h2>
+        <p class="closed__desc">
+          Todas as vagas desta semana já foram preenchidas! Volte no domingo para garantir a próxima.
+        </p>
+        <button class="btn btn--whatsapp" id="btnSoldoutShare">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          Avisar amigos no WhatsApp
+        </button>
+      </div>
+    </section>
+
+    <!-- ========== TOAST ========== -->
+    <div class="toast" id="toast">
+      <span class="toast__icon" id="toastIcon"></span>
+      <span class="toast__message" id="toastMessage"></span>
+    </div>
+
+    <!-- ========== LOADING OVERLAY ========== -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loading-spinner"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
