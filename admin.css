@@ -1070,6 +1070,55 @@ body {
   background: var(--bg);
 }
 
+/* ========== SEGMENTED CONTROL ========== */
+.segment-control {
+  display: flex;
+  background: var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  margin-bottom: 16px;
+  gap: 2px;
+}
+
+.segment-control__btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-family: var(--font);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.segment-control__btn--active {
+  background: var(--bg-card);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.segment-control__btn svg {
+  flex-shrink: 0;
+}
+
+/* Segment panels */
+.segment-panel {
+  display: none;
+  animation: tabFade 0.25s ease;
+}
+
+.segment-panel--active {
+  display: block;
+}
+
 /* ========== MAP ========== */
 .map-header {
   display: flex;
@@ -1308,10 +1357,9 @@ body {
   border: 1px solid var(--border);
 }
 
-/* ========== MAP TAB no-pad ========== */
-#tab-map {
-  padding-left: 12px;
-  padding-right: 12px;
+/* ========== MAP SEGMENT spacing ========== */
+#segment-map .map-header {
+  margin-bottom: 10px;
 }
 
 /* ========== RESPONSIVE ========== */

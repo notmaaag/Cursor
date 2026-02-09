@@ -273,12 +273,6 @@
       : $(`.nav-item[data-tab="${tab}"]`);
     if (navBtn) navBtn.classList.add('nav-item--active');
 
-    // Initialize and refresh map when switching to map tab
-    if (tab === 'map') {
-      initMap();
-      setTimeout(() => refreshMap(), 150);
-    }
-
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -415,6 +409,45 @@
         refreshOrders();
       });
     });
+  }
+
+  // ==========================================
+  // SEGMENTED CONTROL (inside Orders tab)
+  // ==========================================
+  let currentSegment = 'list';
+
+  function initSegmentControl() {
+    $$('.segment-control__btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        switchSegment(btn.dataset.segment);
+      });
+    });
+  }
+
+  function switchSegment(segment) {
+    currentSegment = segment;
+
+    // Toggle button active state
+    $$('.segment-control__btn').forEach((b) => b.classList.remove('segment-control__btn--active'));
+    const activeBtn = $(`.segment-control__btn[data-segment="${segment}"]`);
+    if (activeBtn) activeBtn.classList.add('segment-control__btn--active');
+
+    // Toggle panels
+    $$('.segment-panel').forEach((p) => p.classList.remove('segment-panel--active'));
+    const panel = $(`#segment-${segment}`);
+    if (panel) {
+      panel.classList.add('segment-panel--active');
+      // Re-trigger animation
+      panel.style.animation = 'none';
+      void panel.offsetWidth;
+      panel.style.animation = '';
+    }
+
+    // Init/refresh map when switching to map segment
+    if (segment === 'map') {
+      initMap();
+      setTimeout(() => refreshMap(), 150);
+    }
   }
 
   // ==========================================
@@ -561,8 +594,11 @@
       }
     });
 
-    // Map
-    $('#btnQuickMap').addEventListener('click', () => switchTab('map'));
+    // Map - go to orders tab, then switch to map segment
+    $('#btnQuickMap').addEventListener('click', () => {
+      switchTab('orders');
+      switchSegment('map');
+    });
 
     // Manage slots
     $('#btnQuickSlots').addEventListener('click', openSlotsModal);
@@ -1016,6 +1052,7 @@
     initPin();
     initNav();
     initFilters();
+    initSegmentControl();
     initOrderDetail();
     initQuickActions();
     initSlotsModal();
