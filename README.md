@@ -1,4 +1,4 @@
-# 🥧 Tortas da Vó - Site de Encomendas
+# 🥧 Tortas da Val - Site de Encomendas
 
 Site mobile para encomenda de tortas artesanais caseiras, com entrega aos sábados.
 
