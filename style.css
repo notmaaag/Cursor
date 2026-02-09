@@ -736,6 +736,13 @@ body {
   color: var(--color-success);
 }
 
+/* ---------- CEP RESULT ---------- */
+#cepResult {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
 /* ---------- ADDRESS CARD ---------- */
 .address-card {
   background: var(--color-success-light);
@@ -901,6 +908,32 @@ body {
   0%, 100% { transform: translateX(0); }
   25% { transform: translateX(-6px); }
   75% { transform: translateX(6px); }
+}
+
+/* ---------- NAME SECTION ---------- */
+#nameSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+/* ---------- ADDRESS COMPLEMENT ---------- */
+#addressComplement {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* ---------- CODE SECTION ---------- */
+#codeSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+#codeSection .verification-sent {
+  width: 100%;
 }
 
 /* ---------- VERIFIED BADGE ---------- */
@@ -1386,4 +1419,35 @@ body {
 /* Disable body scroll when loading */
 body.no-scroll {
   overflow: hidden;
+}
+
+/* ---------- SUBTLE PATTERN OVERLAY ---------- */
+.landing::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  background: linear-gradient(
+    180deg,
+    rgba(193, 120, 23, 0.06) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ---------- SMOOTH INPUT TRANSITIONS ---------- */
+#phoneSection,
+#codeSection,
+#nameSection,
+#addressComplement {
+  transition: opacity 0.3s ease;
+}
+
+/* ---------- SELECTION HIGHLIGHT ---------- */
+::selection {
+  background: rgba(193, 120, 23, 0.2);
+  color: var(--color-brown-dark);
 }

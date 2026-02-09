@@ -242,12 +242,16 @@
 
   function navigateTo(stepName) {
     // Hide all steps
-    $$('.step').forEach((s) => s.classList.remove('step--active'));
+    $$('.step').forEach((s) => {
+      s.classList.remove('step--active');
+      // Don't set display:none here; the CSS .step { display: none } handles it
+    });
 
     // Show target step
     const target = $(`#step-${stepName}`);
     if (target) {
-      target.style.display = 'block';
+      // Remove any inline display:none (for sold-out/closed that start hidden)
+      target.style.removeProperty('display');
       // Force reflow for animation
       void target.offsetWidth;
       target.classList.add('step--active');
@@ -392,14 +396,13 @@
     const btnStart = $('#btnStart');
 
     btnStart.addEventListener('click', () => {
-      const dayInfo = getDayStatus();
-
       if (state.slotsAvailable <= 0) {
         navigateTo('soldout');
         return;
       }
 
-      if (dayInfo.status === 'closed') {
+      const dayInfo = getDayStatus();
+      if (dayInfo.status === 'closed' && !DEMO_MODE) {
         showToast('Encomendas só abrem no domingo!', '🔒');
         return;
       }
@@ -513,13 +516,13 @@
 
         if (canDeliver) {
           // Show both options
-          cepResult.style.display = 'block';
+          cepResult.style.display = 'flex';
           pickupNotice.style.display = 'none';
           optDelivery.classList.remove('delivery-option--disabled');
           deliveryOptions.style.display = 'flex';
         } else {
           // Pickup only
-          cepResult.style.display = 'block';
+          cepResult.style.display = 'flex';
           pickupNotice.style.display = 'flex';
           optDelivery.classList.add('delivery-option--disabled');
           deliveryOptions.style.display = 'flex';
@@ -705,7 +708,7 @@
 
         // Show success
         codeSection.style.display = 'none';
-        nameSection.style.display = 'block';
+        nameSection.style.display = 'flex';
 
         showToast('Celular verificado!', '✅');
 
@@ -1017,13 +1020,14 @@
     enableDemoMode();
   }
 
+  // Demo mode flag - set to false in production
+  let DEMO_MODE = true;
+
   // Demo mode: allows ordering any day (remove in production)
   function enableDemoMode() {
-    const originalGetDayStatus = getDayStatus;
+    if (!DEMO_MODE) return;
 
-    // Override to always allow orders for demo
-    // In production, remove this function entirely
-    const dayInfo = originalGetDayStatus();
+    const dayInfo = getDayStatus();
 
     // If it's a closed day, still allow for demo but show a notice
     if (dayInfo.status === 'closed') {
