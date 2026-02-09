@@ -43,7 +43,7 @@
     pickupAddress: 'Rua das Tortas, 123 - Vila Artesanal',
     pixKey: '',
     pixName: '',
-    pin: '1234',
+    pin: '!NOTvalZOE03',
   };
 
   // ==========================================
@@ -189,37 +189,25 @@
   // PIN / AUTH
   // ==========================================
   function initPin() {
-    const digits = $$('.pin-digit');
+    const passwordInput = $('#passwordInput');
+    const btnLogin = $('#btnPasswordLogin');
 
-    digits.forEach((input, idx) => {
-      input.addEventListener('input', (e) => {
-        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 1);
-        if (e.target.value && idx < digits.length - 1) digits[idx + 1].focus();
+    function attemptLogin() {
+      const value = passwordInput.value;
+      if (!value) return;
+      verifyPin(value);
+    }
 
-        const code = Array.from(digits).map((d) => d.value).join('');
-        if (code.length === 4) verifyPin(code);
-      });
-
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && !input.value && idx > 0) {
-          digits[idx - 1].focus();
-          digits[idx - 1].value = '';
-        }
-      });
-
-      input.addEventListener('paste', (e) => {
-        e.preventDefault();
-        const pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 4);
-        pasted.split('').forEach((d, i) => { if (digits[i]) digits[i].value = d; });
-        if (pasted.length === 4) verifyPin(pasted);
-      });
+    btnLogin.addEventListener('click', attemptLogin);
+    passwordInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') attemptLogin();
     });
 
     // Check if already authenticated this session
     if (sessionStorage.getItem(STORAGE.AUTH) === 'true') {
       unlock();
     } else {
-      setTimeout(() => digits[0].focus(), 300);
+      setTimeout(() => passwordInput.focus(), 300);
     }
   }
 
@@ -228,15 +216,14 @@
       sessionStorage.setItem(STORAGE.AUTH, 'true');
       unlock();
     } else {
-      $$('.pin-digit').forEach((d) => {
-        d.classList.add('pin-digit--error');
-        d.value = '';
-      });
-      $('#pinHint').textContent = 'PIN incorreto';
+      const input = $('#passwordInput');
+      input.classList.add('password-input--error');
+      input.value = '';
+      $('#pinHint').textContent = 'Senha incorreta';
       $('#pinHint').style.color = '#ff3b30';
       setTimeout(() => {
-        $$('.pin-digit').forEach((d) => d.classList.remove('pin-digit--error'));
-        $$('.pin-digit')[0].focus();
+        input.classList.remove('password-input--error');
+        input.focus();
       }, 500);
     }
   }
@@ -752,7 +739,7 @@
       settings.pickupAddress = $('#settPickupAddress').value.trim();
       settings.pixKey = $('#settPixKey').value.trim();
       settings.pixName = $('#settPixName').value.trim();
-      settings.pin = $('#settPin').value.trim() || '1234';
+      settings.pin = $('#settPin').value.trim() || '!NOTvalZOE03';
 
       saveSettings();
       showToast('Configurações salvas!');

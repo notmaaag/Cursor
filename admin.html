@@ -22,14 +22,10 @@
       <h1 class="lock-screen__title">Painel Admin</h1>
       <p class="lock-screen__subtitle">Tortas da Vó</p>
       <div class="pin-input-group">
-        <label class="pin-label">Digite o PIN</label>
-        <div class="pin-inputs" id="pinInputs">
-          <input type="tel" maxlength="1" inputmode="numeric" class="pin-digit" data-idx="0">
-          <input type="tel" maxlength="1" inputmode="numeric" class="pin-digit" data-idx="1">
-          <input type="tel" maxlength="1" inputmode="numeric" class="pin-digit" data-idx="2">
-          <input type="tel" maxlength="1" inputmode="numeric" class="pin-digit" data-idx="3">
-        </div>
-        <p class="pin-hint" id="pinHint">PIN padrão: 1234</p>
+        <label class="pin-label">Digite a senha</label>
+        <input type="password" id="passwordInput" class="password-input" placeholder="Senha" autocomplete="off">
+        <button class="btn-admin btn-admin--primary password-btn" id="btnPasswordLogin">Entrar</button>
+        <p class="pin-hint" id="pinHint"></p>
       </div>
     </div>
   </div>
@@ -352,12 +348,12 @@
             </div>
           </div>
 
-          <!-- PIN -->
+          <!-- Senha -->
           <div class="settings-card">
             <h3 class="settings-card__title">🔐 Segurança</h3>
             <div class="settings-row">
-              <label class="settings-label" for="settPin">PIN de acesso</label>
-              <input type="tel" id="settPin" class="settings-input settings-input--small" maxlength="4" inputmode="numeric" value="1234">
+              <label class="settings-label" for="settPin">Senha de acesso</label>
+              <input type="password" id="settPin" class="settings-input" style="max-width:180px;">
             </div>
           </div>
 
