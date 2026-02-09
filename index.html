@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Tortas da Mae - Encomendas para Sabado</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="app">
+      <header class="hero">
+        <div class="brand">Tortas da Mae</div>
+        <h1>Encomende sua torta para o proximo sabado</h1>
+        <p>
+          Tortas caseiras feitas com carinho, preparo em 2 dias e entrega apenas
+          aos sabados (ou retirada).
+        </p>
+        <div class="hero-tags">
+          <span class="tag">Pedidos: domingo a quarta</span>
+          <span class="tag">Quinta com taxa extra</span>
+          <span class="tag">Entrega somente sabado</span>
+        </div>
+      </header>
+
+      <section class="card notice" id="orderWindowNotice" aria-live="polite"></section>
+
+      <section class="card slots">
+        <div class="slots-header">
+          <div>
+            <div class="eyebrow">Slots disponiveis</div>
+            <div class="slots-count" id="slotsCount">10</div>
+          </div>
+          <div class="slots-detail">
+            <div class="eyebrow">SLA</div>
+            <div class="detail">Preparo em 2 dias</div>
+          </div>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" id="slotsBar"></div>
+        </div>
+      </section>
+
+      <section class="card closed hidden" id="orderClosedCard">
+        <h2>Pedidos encerrados</h2>
+        <p id="closedReason"></p>
+        <a
+          class="button secondary"
+          id="closedCta"
+          href="https://wa.me/5500000000000"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Falar no WhatsApp
+        </a>
+      </section>
+
+      <section id="orderFlow">
+        <div class="stepper" aria-label="Progresso do pedido">
+          <div class="stepper-item active" data-step-indicator="flavor">
+            1. Sabor
+          </div>
+          <div class="stepper-item" data-step-indicator="cep">2. CEP</div>
+          <div class="stepper-item" data-step-indicator="contact">
+            3. Contato
+          </div>
+          <div class="stepper-item" data-step-indicator="confirm">
+            4. Pix
+          </div>
+          <div class="stepper-item" data-step-indicator="success">
+            5. Sucesso
+          </div>
+        </div>
+
+        <section class="card step" data-step="flavor">
+          <h2>1. Escolha o sabor</h2>
+          <p>Selecione uma das tortas disponiveis para o proximo sabado.</p>
+          <div class="options">
+            <label class="option-card">
+              <input type="radio" name="flavor" value="Frango" />
+              <div>
+                <strong>Frango</strong>
+                <span>Recheio cremoso e bem temperado.</span>
+              </div>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="flavor" value="Alho poro" />
+              <div>
+                <strong>Alho poro</strong>
+                <span>Leve e aromatica, perfeita para sabado.</span>
+              </div>
+            </label>
+          </div>
+          <p class="error-message" data-error="flavor" aria-live="polite"></p>
+          <div class="actions">
+            <button class="button primary" id="toStepCep">Continuar</button>
+          </div>
+        </section>
+
+        <section class="card step hidden" data-step="cep">
+          <h2>2. Informe o CEP</h2>
+          <p>
+            Validamos se entregamos no seu endereco ou se a retirada sera a
+            melhor opcao.
+          </p>
+          <label class="field">
+            <span>CEP</span>
+            <input
+              id="cepInput"
+              inputmode="numeric"
+              autocomplete="postal-code"
+              placeholder="00000-000"
+              maxlength="9"
+            />
+          </label>
+          <button class="button ghost" id="validateCep">Validar CEP</button>
+          <div class="status" id="cepStatus"></div>
+          <div class="options" id="deliveryOptions">
+            <label class="option-card">
+              <input type="radio" name="deliveryMethod" value="entrega" />
+              <div>
+                <strong>Entrega no sabado</strong>
+                <span>Confirmaremos o endereco completo por WhatsApp.</span>
+              </div>
+            </label>
+            <label class="option-card">
+              <input type="radio" name="deliveryMethod" value="retirada" />
+              <div>
+                <strong>Retirada</strong>
+                <span>Endereco a combinar apos a confirmacao.</span>
+              </div>
+            </label>
+          </div>
+          <p class="error-message" data-error="cep" aria-live="polite"></p>
+          <div class="actions">
+            <button class="button secondary" data-back="flavor">Voltar</button>
+            <button class="button primary" id="toStepContact">Continuar</button>
+          </div>
+        </section>
+
+        <section class="card step hidden" data-step="contact">
+          <h2>3. Confirme seu contato</h2>
+          <p>
+            Enviaremos um codigo de validacao por SMS ou WhatsApp para finalizar
+            o pedido.
+          </p>
+          <label class="field">
+            <span>Celular</span>
+            <input
+              id="phoneInput"
+              inputmode="tel"
+              autocomplete="tel-national"
+              placeholder="(11) 90000-0000"
+              maxlength="15"
+            />
+          </label>
+          <div class="inline-options">
+            <label>
+              <input type="radio" name="tokenChannel" value="whatsapp" />
+              WhatsApp
+            </label>
+            <label>
+              <input type="radio" name="tokenChannel" value="sms" />
+              SMS
+            </label>
+          </div>
+          <button class="button ghost" id="sendCode">Enviar codigo</button>
+          <p class="helper" id="tokenHelp"></p>
+          <label class="field">
+            <span>Codigo</span>
+            <input
+              id="tokenInput"
+              inputmode="numeric"
+              placeholder="000000"
+              maxlength="6"
+            />
+          </label>
+          <label class="field">
+            <span>Nome</span>
+            <input id="nameInput" autocomplete="name" placeholder="Seu nome" />
+          </label>
+          <p class="error-message" data-error="contact" aria-live="polite"></p>
+          <div class="actions">
+            <button class="button secondary" data-back="cep">Voltar</button>
+            <button class="button primary" id="toStepConfirm">Continuar</button>
+          </div>
+        </section>
+
+        <section class="card step hidden" data-step="confirm">
+          <h2>4. Confirme e pague via Pix</h2>
+          <div class="summary" id="orderSummary"></div>
+          <div class="pix-card">
+            <div>
+              <div class="eyebrow">Chave Pix</div>
+              <div class="pix-key" id="pixKey">pix@exemplo.com</div>
+            </div>
+            <button class="button ghost" id="copyPix">Copiar</button>
+          </div>
+          <p class="helper" id="pixHelper">
+            O pagamento via Pix confirma o agendamento do proximo sabado.
+          </p>
+          <p class="error-message" data-error="confirm" aria-live="polite"></p>
+          <div class="actions">
+            <button class="button secondary" data-back="contact">Voltar</button>
+            <button class="button primary" id="confirmOrder">
+              Confirmar pedido
+            </button>
+          </div>
+        </section>
+
+        <section class="card step hidden" data-step="success">
+          <h2>Pedido agendado com sucesso!</h2>
+          <p id="successMessage"></p>
+          <div class="actions">
+            <button class="button secondary" id="newOrder">
+              Fazer outro pedido
+            </button>
+          </div>
+        </section>
+      </section>
+
+      <section class="card referral">
+        <h2>Indique e ganhe</h2>
+        <p>
+          A cada 10 indicacoes com pedido confirmado, voce ganha 1 torta.
+          Compartilhe seu link com amigos.
+        </p>
+        <div class="referral-code">
+          <span>Seu codigo:</span>
+          <strong id="refCode"></strong>
+        </div>
+        <div class="referral-progress">
+          <div>
+            <span class="eyebrow">Indicacoes confirmadas</span>
+            <span class="ref-count" id="refCount">0</span>
+            <span>/10</span>
+          </div>
+          <div class="progress small">
+            <div class="progress-bar" id="refBar"></div>
+          </div>
+        </div>
+        <button class="button primary" id="shareWhatsApp">
+          Compartilhar no WhatsApp
+        </button>
+        <p class="helper">
+          Contagem local (simulacao). Para valer de verdade, precisa de
+          integracao com backend.
+        </p>
+      </section>
+
+      <footer class="footer">
+        <p>
+          Dicas: encomendas de domingo a quarta. Quinta-feira com taxa extra
+          (urgencia). Sexta e sabado sem novos pedidos.
+        </p>
+      </footer>
+    </main>
+  </body>
+</html>
