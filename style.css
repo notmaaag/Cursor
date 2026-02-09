@@ -378,6 +378,19 @@ body {
   font-size: 0.8rem;
   color: var(--color-text-muted);
   margin-top: var(--space-sm);
+  line-height: 1.8;
+}
+
+.landing__admin-link {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.7rem;
+  opacity: 0.5;
+  transition: opacity var(--transition-fast);
+}
+
+.landing__admin-link:active {
+  opacity: 1;
 }
 
 /* ---------- SLOTS ---------- */

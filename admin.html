@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥧</text></svg>">
+  <title>Tortas da Vó · Painel Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+  <!-- ========== PIN LOCK SCREEN ========== -->
+  <div id="lockScreen" class="lock-screen">
+    <div class="lock-screen__content">
+      <div class="lock-screen__icon">🔐</div>
+      <h1 class="lock-screen__title">Painel Admin</h1>
+      <p class="lock-screen__subtitle">Tortas da Vó</p>
+      <div class="pin-input-group">
+        <label class="pin-label">Digite o PIN</label>
+        <div class="pin-inputs" id="pinInputs">
+          <input type="tel" maxlength="1" inputmode="numeric" class="pin-digit" data-idx="0">
+          <input type="tel" maxlength="1" inputmode="numeric" class="pin-digit" data-idx="1">
+          <input type="tel" maxlength="1" inputmode="numeric" class="pin-digit" data-idx="2">
+          <input type="tel" maxlength="1" inputmode="numeric" class="pin-digit" data-idx="3">
+        </div>
+        <p class="pin-hint" id="pinHint">PIN padrão: 1234</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MAIN APP ========== -->
+  <div id="adminApp" class="admin-app" style="display:none;">
+
+    <!-- ========== HEADER ========== -->
+    <header class="header">
+      <div class="header__left">
+        <span class="header__icon">🥧</span>
+        <div>
+          <h1 class="header__title">Tortas da Vó</h1>
+          <p class="header__subtitle" id="headerWeek"></p>
+        </div>
+      </div>
+      <button class="header__btn" id="btnLogout" title="Sair">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- ========== TAB: DASHBOARD ========== -->
+    <main class="main">
+      <div class="tab-content tab-content--active" id="tab-dashboard">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card stat-card--primary">
+            <div class="stat-card__icon">📋</div>
+            <div class="stat-card__info">
+              <span class="stat-card__value" id="statOrders">0</span>
+              <span class="stat-card__label">Pedidos</span>
+            </div>
+          </div>
+          <div class="stat-card stat-card--success">
+            <div class="stat-card__icon">💰</div>
+            <div class="stat-card__info">
+              <span class="stat-card__value" id="statRevenue">R$ 0</span>
+              <span class="stat-card__label">Receita</span>
+            </div>
+          </div>
+          <div class="stat-card stat-card--warning">
+            <div class="stat-card__icon">🎰</div>
+            <div class="stat-card__info">
+              <span class="stat-card__value" id="statSlots">10</span>
+              <span class="stat-card__label">Vagas restantes</span>
+            </div>
+          </div>
+          <div class="stat-card stat-card--info">
+            <div class="stat-card__icon">🚗</div>
+            <div class="stat-card__info">
+              <span class="stat-card__value" id="statDeliveries">0</span>
+              <span class="stat-card__label">Entregas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section">
+          <h2 class="section__title">Ações rápidas</h2>
+          <div class="quick-actions">
+            <button class="quick-action" id="btnQuickWhatsapp">
+              <span class="quick-action__icon">💬</span>
+              <span>Enviar PIX<br>por WhatsApp</span>
+            </button>
+            <button class="quick-action" id="btnQuickSlots">
+              <span class="quick-action__icon">🎰</span>
+              <span>Gerenciar<br>Vagas</span>
+            </button>
+            <button class="quick-action" id="btnQuickExport">
+              <span class="quick-action__icon">📄</span>
+              <span>Exportar<br>Lista</span>
+            </button>
+            <button class="quick-action" id="btnAddOrder">
+              <span class="quick-action__icon">➕</span>
+              <span>Novo<br>Pedido</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Today's Summary -->
+        <div class="section">
+          <h2 class="section__title">Resumo da semana</h2>
+          <div class="week-summary" id="weekSummary">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="section">
+          <div class="section__header">
+            <h2 class="section__title">Pedidos recentes</h2>
+            <button class="section__link" id="btnSeeAllOrders">Ver todos</button>
+          </div>
+          <div class="orders-list" id="recentOrdersList">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== TAB: ORDERS ========== -->
+      <div class="tab-content" id="tab-orders">
+        <div class="section">
+          <div class="section__header">
+            <h2 class="section__title">Todos os pedidos</h2>
+            <span class="badge" id="ordersCount">0</span>
+          </div>
+
+          <!-- Filters -->
+          <div class="filters">
+            <button class="filter-chip filter-chip--active" data-filter="all">Todos</button>
+            <button class="filter-chip" data-filter="pending">Pendente</button>
+            <button class="filter-chip" data-filter="confirmed">Confirmado</button>
+            <button class="filter-chip" data-filter="paid">Pago</button>
+            <button class="filter-chip" data-filter="preparing">Preparando</button>
+            <button class="filter-chip" data-filter="ready">Pronto</button>
+            <button class="filter-chip" data-filter="delivered">Entregue</button>
+            <button class="filter-chip" data-filter="cancelled">Cancelado</button>
+          </div>
+
+          <div class="orders-list" id="allOrdersList">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== TAB: ORDER DETAIL (overlay) ========== -->
+      <div class="tab-content" id="tab-order-detail">
+        <div class="detail-header">
+          <button class="btn-back-admin" id="btnBackFromDetail">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+          </button>
+          <div>
+            <h2 class="section__title" id="detailOrderId">Pedido #---</h2>
+            <span class="detail-date" id="detailDate"></span>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="detail-status-section">
+          <label class="detail-label">Status do pedido</label>
+          <div class="status-selector" id="statusSelector">
+            <button class="status-btn" data-status="pending">
+              <span class="status-dot status-dot--pending"></span>Pendente
+            </button>
+            <button class="status-btn" data-status="confirmed">
+              <span class="status-dot status-dot--confirmed"></span>Confirmado
+            </button>
+            <button class="status-btn" data-status="paid">
+              <span class="status-dot status-dot--paid"></span>Pago
+            </button>
+            <button class="status-btn" data-status="preparing">
+              <span class="status-dot status-dot--preparing"></span>Preparando
+            </button>
+            <button class="status-btn" data-status="ready">
+              <span class="status-dot status-dot--ready"></span>Pronto
+            </button>
+            <button class="status-btn" data-status="delivered">
+              <span class="status-dot status-dot--delivered"></span>Entregue
+            </button>
+            <button class="status-btn" data-status="cancelled">
+              <span class="status-dot status-dot--cancelled"></span>Cancelado
+            </button>
+          </div>
+        </div>
+
+        <!-- Customer -->
+        <div class="detail-card">
+          <h3 class="detail-card__title">👤 Cliente</h3>
+          <div class="detail-row">
+            <span class="detail-row__label">Nome</span>
+            <span class="detail-row__value" id="detailName"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-row__label">Celular</span>
+            <a class="detail-row__value detail-row__value--link" id="detailPhone" href="#"></a>
+          </div>
+          <div class="detail-row" id="detailReferralRow" style="display:none;">
+            <span class="detail-row__label">Indicado por</span>
+            <span class="detail-row__value" id="detailReferral"></span>
+          </div>
+        </div>
+
+        <!-- Order -->
+        <div class="detail-card">
+          <h3 class="detail-card__title">🥧 Pedido</h3>
+          <div class="detail-row">
+            <span class="detail-row__label">Torta</span>
+            <span class="detail-row__value" id="detailFlavor"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-row__label">Entrega</span>
+            <span class="detail-row__value" id="detailDeliveryDate"></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-row__label">Método</span>
+            <span class="detail-row__value" id="detailMethod"></span>
+          </div>
+          <div class="detail-row" id="detailAddressRow" style="display:none;">
+            <span class="detail-row__label">Endereço</span>
+            <span class="detail-row__value" id="detailAddress"></span>
+          </div>
+        </div>
+
+        <!-- Payment -->
+        <div class="detail-card">
+          <h3 class="detail-card__title">💰 Pagamento</h3>
+          <div class="detail-row">
+            <span class="detail-row__label">Torta</span>
+            <span class="detail-row__value" id="detailPiePrice"></span>
+          </div>
+          <div class="detail-row" id="detailDeliveryFeeRow" style="display:none;">
+            <span class="detail-row__label">Taxa entrega</span>
+            <span class="detail-row__value" id="detailDeliveryFee"></span>
+          </div>
+          <div class="detail-row" id="detailSurchargeRow" style="display:none;">
+            <span class="detail-row__label">Taxa urgência</span>
+            <span class="detail-row__value" id="detailSurcharge"></span>
+          </div>
+          <div class="detail-row detail-row--total">
+            <span class="detail-row__label">Total</span>
+            <span class="detail-row__value" id="detailTotal"></span>
+          </div>
+        </div>
+
+        <!-- WhatsApp Actions -->
+        <div class="detail-actions">
+          <button class="btn-admin btn-admin--whatsapp" id="btnSendPix">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            Enviar PIX por WhatsApp
+          </button>
+          <button class="btn-admin btn-admin--outline" id="btnSendConfirmation">
+            💬 Enviar confirmação
+          </button>
+          <button class="btn-admin btn-admin--danger" id="btnCancelOrder">
+            Cancelar pedido
+          </button>
+        </div>
+      </div>
+
+      <!-- ========== TAB: SETTINGS ========== -->
+      <div class="tab-content" id="tab-settings">
+        <div class="section">
+          <h2 class="section__title">Configurações</h2>
+
+          <!-- Prices -->
+          <div class="settings-card">
+            <h3 class="settings-card__title">💲 Preços</h3>
+            <div class="settings-row">
+              <label class="settings-label" for="settPriceFrago">Torta de Frango</label>
+              <div class="settings-input-wrap">
+                <span class="settings-prefix">R$</span>
+                <input type="number" id="settPriceFrago" class="settings-input" value="45" min="0" step="1">
+              </div>
+            </div>
+            <div class="settings-row">
+              <label class="settings-label" for="settPricePoro">Torta de Alho Poró</label>
+              <div class="settings-input-wrap">
+                <span class="settings-prefix">R$</span>
+                <input type="number" id="settPricePoro" class="settings-input" value="50" min="0" step="1">
+              </div>
+            </div>
+            <div class="settings-row">
+              <label class="settings-label" for="settDeliveryFee">Taxa de entrega</label>
+              <div class="settings-input-wrap">
+                <span class="settings-prefix">R$</span>
+                <input type="number" id="settDeliveryFee" class="settings-input" value="10" min="0" step="1">
+              </div>
+            </div>
+            <div class="settings-row">
+              <label class="settings-label" for="settSurcharge">Taxa urgência (quinta)</label>
+              <div class="settings-input-wrap">
+                <span class="settings-prefix">R$</span>
+                <input type="number" id="settSurcharge" class="settings-input" value="10" min="0" step="1">
+              </div>
+            </div>
+          </div>
+
+          <!-- Slots -->
+          <div class="settings-card">
+            <h3 class="settings-card__title">🎰 Vagas</h3>
+            <div class="settings-row">
+              <label class="settings-label" for="settMaxSlots">Vagas por semana</label>
+              <input type="number" id="settMaxSlots" class="settings-input settings-input--small" value="10" min="1" max="50">
+            </div>
+            <div class="settings-row">
+              <label class="settings-label">Vagas usadas esta semana</label>
+              <span class="settings-value" id="settUsedSlots">0</span>
+            </div>
+            <button class="btn-admin btn-admin--outline btn-admin--small" id="btnResetSlots">
+              Resetar vagas da semana
+            </button>
+          </div>
+
+          <!-- Pickup Address -->
+          <div class="settings-card">
+            <h3 class="settings-card__title">📍 Endereço de retirada</h3>
+            <div class="settings-row">
+              <textarea id="settPickupAddress" class="settings-textarea" rows="2">Rua das Tortas, 123 - Vila Artesanal</textarea>
+            </div>
+          </div>
+
+          <!-- PIX Info -->
+          <div class="settings-card">
+            <h3 class="settings-card__title">💳 Chave PIX</h3>
+            <div class="settings-row">
+              <label class="settings-label" for="settPixKey">Chave PIX</label>
+              <input type="text" id="settPixKey" class="settings-input" placeholder="CPF, email ou telefone">
+            </div>
+            <div class="settings-row">
+              <label class="settings-label" for="settPixName">Nome do titular</label>
+              <input type="text" id="settPixName" class="settings-input" placeholder="Nome completo">
+            </div>
+          </div>
+
+          <!-- PIN -->
+          <div class="settings-card">
+            <h3 class="settings-card__title">🔐 Segurança</h3>
+            <div class="settings-row">
+              <label class="settings-label" for="settPin">PIN de acesso</label>
+              <input type="tel" id="settPin" class="settings-input settings-input--small" maxlength="4" inputmode="numeric" value="1234">
+            </div>
+          </div>
+
+          <button class="btn-admin btn-admin--primary" id="btnSaveSettings">
+            Salvar configurações
+          </button>
+
+          <!-- Danger Zone -->
+          <div class="settings-card settings-card--danger">
+            <h3 class="settings-card__title">⚠️ Zona de perigo</h3>
+            <button class="btn-admin btn-admin--danger btn-admin--small" id="btnClearOrders">
+              Limpar todos os pedidos
+            </button>
+            <button class="btn-admin btn-admin--danger btn-admin--small" id="btnResetAll">
+              Resetar tudo (configurações + pedidos)
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ========== BOTTOM NAV ========== -->
+    <nav class="bottom-nav">
+      <button class="nav-item nav-item--active" data-tab="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+        </svg>
+        <span>Início</span>
+      </button>
+      <button class="nav-item" data-tab="orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+        <span>Pedidos</span>
+      </button>
+      <button class="nav-item" data-tab="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span>Config</span>
+      </button>
+    </nav>
+
+    <!-- ========== TOAST ========== -->
+    <div class="toast-admin" id="toastAdmin">
+      <span id="toastAdminMsg"></span>
+    </div>
+
+    <!-- ========== MODAL: Add Order ========== -->
+    <div class="modal-overlay" id="modalOverlay" style="display:none;">
+      <div class="modal">
+        <div class="modal__header">
+          <h3 class="modal__title" id="modalTitle">Novo Pedido Manual</h3>
+          <button class="modal__close" id="modalClose">&times;</button>
+        </div>
+        <div class="modal__body" id="modalBody">
+          <div class="settings-row">
+            <label class="settings-label" for="manualName">Nome</label>
+            <input type="text" id="manualName" class="settings-input" placeholder="Nome do cliente">
+          </div>
+          <div class="settings-row">
+            <label class="settings-label" for="manualPhone">Celular</label>
+            <input type="tel" id="manualPhone" class="settings-input" placeholder="(11) 99999-9999">
+          </div>
+          <div class="settings-row">
+            <label class="settings-label">Sabor</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="manualFlavor" value="frango" checked> Frango
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="manualFlavor" value="alho-poro"> Alho Poró
+              </label>
+            </div>
+          </div>
+          <div class="settings-row">
+            <label class="settings-label">Método</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="manualMethod" value="pickup" checked> Retirada
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="manualMethod" value="delivery"> Entrega
+              </label>
+            </div>
+          </div>
+          <div id="manualAddressSection" style="display:none;">
+            <div class="settings-row">
+              <label class="settings-label" for="manualAddress">Endereço completo</label>
+              <input type="text" id="manualAddress" class="settings-input" placeholder="Rua, número, bairro, cidade">
+            </div>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button class="btn-admin btn-admin--outline" id="modalCancel">Cancelar</button>
+          <button class="btn-admin btn-admin--primary" id="modalConfirm">Criar pedido</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== MODAL: Slots ========== -->
+    <div class="modal-overlay" id="slotsModalOverlay" style="display:none;">
+      <div class="modal">
+        <div class="modal__header">
+          <h3 class="modal__title">Gerenciar Vagas</h3>
+          <button class="modal__close" id="slotsModalClose">&times;</button>
+        </div>
+        <div class="modal__body">
+          <div class="slots-manager">
+            <div class="slots-manager__display">
+              <span class="slots-manager__number" id="slotsManagerNumber">10</span>
+              <span class="slots-manager__label">vagas disponíveis</span>
+            </div>
+            <div class="slots-manager__controls">
+              <button class="slots-manager__btn" id="btnSlotsDown">−</button>
+              <button class="slots-manager__btn" id="btnSlotsUp">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="modal__footer">
+          <button class="btn-admin btn-admin--primary" id="slotsModalSave">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="admin.js"></script>
+</body>
+</html>
