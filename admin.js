@@ -534,7 +534,7 @@
 
       const phone = phoneDigits(order.customerPhone);
       const pixInfo = settings.pixKey
-        ? `\n\n💳 *Chave PIX:* ${settings.pixKey}\n👤 *Titular:* ${settings.pixName || 'Tortas da Vó'}`
+        ? `\n\n💳 *Chave PIX:* ${settings.pixKey}\n👤 *Titular:* ${settings.pixName || 'Tortas da Val'}`
         : '\n\n💳 Enviaremos a chave PIX em breve.';
 
       const msg = `Olá, ${order.customerName}! 🥧\n\nSeu pedido *${order.id}* foi confirmado!\n\n` +

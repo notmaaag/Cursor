@@ -35,7 +35,7 @@
     STORAGE_KEY: 'tortas_da_vo',
     // WhatsApp share number (without country code prefix for share links)
     WHATSAPP_SHARE_TEXT: (code) =>
-      `🥧 Descobri as Tortas da Vó! Tortas artesanais incríveis entregues no sábado. Use meu código *${code}* e peça a sua: ${window.location.origin}${window.location.pathname}?ref=${code}`,
+      `🥧 Descobri as Tortas da Val! Tortas artesanais incríveis entregues no sábado. Use meu código *${code}* e peça a sua: ${window.location.origin}${window.location.pathname}?ref=${code}`,
   };
 
   const FLAVOR_NAMES = {
@@ -1040,7 +1040,7 @@
     if (btnSoldoutShare) {
       btnSoldoutShare.addEventListener('click', () => {
         const text =
-          '🥧 As Tortas da Vó estão esgotadas essa semana! São tortas artesanais incríveis. Fica de olho para a próxima semana!';
+          '🥧 As Tortas da Val estão esgotadas essa semana! São tortas artesanais incríveis. Fica de olho para a próxima semana!';
         const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
         window.open(url, '_blank');
       });
