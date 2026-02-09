@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id           String    @id @default(cuid())
+  phone        String    @unique
+  name         String
+  referralCode String    @unique
+  referredBy   String?
+  referrer     User?     @relation("Referrals", fields: [referredBy], references: [id])
+  referrals    User[]    @relation("Referrals")
+  orders       Order[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Order {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  flavor         String   // "frango" ou "alho-poro"
+  deliveryMethod String   // "delivery" ou "pickup"
+  cep            String?
+  address        String?
+  status         String   @default("pending") // pending, confirmed, completed, cancelled
+  paymentStatus  String   @default("pending") // pending, paid
+  weekStartDate  DateTime // Data do início da semana (segunda-feira)
+  extraFee       Boolean  @default(false) // true se pedido quinta-feira
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@index([weekStartDate])
+  @@index([userId])
+}
+
+model WeeklySlot {
+  id            String   @id @default(cuid())
+  weekStartDate DateTime @unique // Data do início da semana (segunda-feira)
+  availableSlots Int     @default(10)
+  maxSlots      Int      @default(10)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([weekStartDate])
+}
+
+model Referral {
+  id         String   @id @default(cuid())
+  referrerId String
+  referredPhone String
+  orderId    String?
+  completed  Boolean  @default(false) // true quando o pedido referenciado for completado
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  @@index([referrerId])
+  @@index([referredPhone])
+}
+
+model PhoneVerification {
+  id        String   @id @default(cuid())
+  phone     String
+  token     String
+  verified  Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  @@index([phone])
+  @@index([token])
+}
