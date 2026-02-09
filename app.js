@@ -120,6 +120,18 @@
     }
   }
 
+  // Save order to shared localStorage (read by admin panel)
+  function saveOrder(order) {
+    try {
+      const key = 'tortas_da_vo_orders';
+      const existing = JSON.parse(localStorage.getItem(key) || '[]');
+      existing.push(order);
+      localStorage.setItem(key, JSON.stringify(existing));
+    } catch (e) {
+      console.warn('Failed to save order:', e);
+    }
+  }
+
   function getWeekNumber() {
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 1);
@@ -863,13 +875,46 @@
         state.myReferralCode = generateReferralCode(state.name);
       }
 
-      // If this user was referred, increment the referrer's count
-      // (In production, this would be a backend call)
-      if (state.referralCode) {
-        // We can't directly update the referrer's count client-side
-        // but we track it for demo purposes
-        console.log(`Referred by: ${state.referralCode}`);
+      // Build full address string
+      let fullAddress = '';
+      if (state.deliveryMethod === 'delivery' && state.cepData) {
+        fullAddress = `${state.cepData.logradouro || ''}, ${state.addressNumber}`;
+        if (state.addressComplement) fullAddress += ` - ${state.addressComplement}`;
+        fullAddress += ` - ${state.cepData.bairro || ''}, ${state.cepData.localidade}/${state.cepData.uf}`;
+        fullAddress += ` - CEP ${state.cepData.cep || ''}`;
       }
+
+      // Save full order to localStorage (shared with admin panel)
+      const piePrice = CONFIG.PRICES[state.selectedFlavor];
+      const surcharge = state.isThursday ? CONFIG.THURSDAY_SURCHARGE : 0;
+      const deliveryFee = state.deliveryMethod === 'delivery' ? CONFIG.DELIVERY_FEE : 0;
+      const nextSat = getNextSaturday();
+
+      const order = {
+        id: state.orderId,
+        flavor: state.selectedFlavor,
+        flavorName: FLAVOR_NAMES[state.selectedFlavor],
+        deliveryMethod: state.deliveryMethod,
+        cep: state.cepData ? state.cepData.cep : '',
+        address: state.cepData ? `${state.cepData.logradouro || ''}, ${state.cepData.bairro || ''}, ${state.cepData.localidade}/${state.cepData.uf}` : '',
+        addressNumber: state.addressNumber,
+        addressComplement: state.addressComplement,
+        fullAddress: fullAddress,
+        customerName: state.name,
+        customerPhone: state.phone,
+        piePrice: piePrice,
+        deliveryFee: deliveryFee,
+        surcharge: surcharge,
+        total: piePrice + deliveryFee + surcharge,
+        isThursdayOrder: state.isThursday,
+        referredBy: state.referralCode || null,
+        referralCode: state.myReferralCode,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        deliveryDate: nextSat.toISOString().split('T')[0],
+        weekNumber: getWeekNumber(),
+      };
+      saveOrder(order);
 
       saveState();
       hideLoading();
