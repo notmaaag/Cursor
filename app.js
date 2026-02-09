@@ -845,6 +845,10 @@
     const btnBack = $('#btnBackConfirm');
 
     btnConfirm.addEventListener('click', async () => {
+      // Prevent double-click
+      if (btnConfirm.disabled) return;
+      btnConfirm.disabled = true;
+      btnConfirm.textContent = 'Processando...';
       showLoading();
 
       // Simulate order submission
@@ -873,10 +877,15 @@
       // Navigate to success
       populateSuccess();
       navigateTo('success');
+      showConfetti();
 
       // Update landing slots
       renderSlots();
       renderDayStatus();
+
+      // Re-enable button for potential new orders
+      btnConfirm.disabled = false;
+      btnConfirm.textContent = 'Confirmar Encomenda';
     });
 
     btnBack.addEventListener('click', () => {
@@ -887,6 +896,28 @@
   // ==========================================
   // STEP: SUCCESS
   // ==========================================
+  // Mini confetti celebration
+  function showConfetti() {
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    document.body.appendChild(container);
+
+    const colors = ['#C17817', '#D4920E', '#8B4513', '#2D8F4E', '#F57F17', '#E8D5B7'];
+    for (let i = 0; i < 30; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = `${Math.random() * 100}%`;
+      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.animationDelay = `${Math.random() * 1}s`;
+      confetti.style.animationDuration = `${2 + Math.random() * 2}s`;
+      confetti.style.width = `${6 + Math.random() * 8}px`;
+      confetti.style.height = `${6 + Math.random() * 8}px`;
+      container.appendChild(confetti);
+    }
+
+    setTimeout(() => container.remove(), 4000);
+  }
+
   function populateSuccess() {
     const flavorName = FLAVOR_NAMES[state.selectedFlavor];
     const nextSat = getNextSaturday();
